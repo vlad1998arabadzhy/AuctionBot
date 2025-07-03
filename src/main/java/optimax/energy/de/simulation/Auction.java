@@ -1,6 +1,6 @@
 package optimax.energy.de.simulation;
 
-import optimax.energy.de.bot.Bidder;
+
 import optimax.energy.de.bot.Bot;
 
 
@@ -8,21 +8,24 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class Auction {
-    private  static Logger logger=Logger.getLogger(Auction.class.getName());
-    private List<Bot> participants;
+    private  static final Logger logger=Logger.getLogger(Auction.class.getName());
+    private final List<Bot> participants;
+
 
     private int quantity;
+    private int round;
 
     public Auction( int quantity, Bot ... bidders) {
         this.participants = new ArrayList<>();
         this.quantity = quantity;
+        this.round=0;
         addParticipant(bidders);
     }
 
     public void addParticipant(Bot ... bidders) {
         for (Bot bidder : bidders){
             participants.add(bidder);
-            logger.info(bidder.getName()+" added to the auction");
+            logger.info(bidder.getName()+" has joined  the auction");
         }
 
     }
@@ -31,27 +34,51 @@ public class Auction {
         logger.info("Round has started");
 
         Lot lot = new Lot(participants);
-        quantity-=2;
+        quantity-= Lot.QUANTITY_PER_LOT;
         lot.playRound();
 
-        logger.info("Round has finished");
+        logger.info("Round has finished \n");
     }
 
     public void start(){
-        logger.info("Auction begins!");
-        while (quantity==0){
-            processNextLot();
+        Bot winner;
 
+        logger.info("Auction begins!");
+        while (quantity>0){
+            processNextLot();
         }
-        determineWinnerOfTheAuction();
+        participants.get(0).showBids();
+
+        if(isDraw()){
+             winner = handleDraw();
+                    }else {
+          winner=determineWinnerOfTheAuction();
+        }
         logger.info("Auction has finished");
+        displayWinner(winner);
+    }
+
+    private  Bot determineWinnerOfTheAuction(){
+        return  participants.stream()
+                .max(Comparator.comparing(Bot::getQuantity))
+                .orElseThrow(NoSuchElementException::new);
 
     }
 
-    private  void determineWinnerOfTheAuction(){
-        Bot winner = participants.stream()
-                .max(Comparator.comparing(Bot::getQuantity))
-                .orElseThrow(NoSuchElementException::new);
+    private boolean isDraw(){
+        return participants.stream()
+                .map(Bot::getBudget)
+                .distinct()
+                .count()==1;
+    }
+
+    private Bot handleDraw(){
+        return  participants.stream()
+                .max(Comparator.comparing(Bot::getBudget))
+                .get();
+
+    }
+    private void displayWinner(Bot winner){
         logger.info(winner.getName()+" has won with quantity " +winner.getQuantity());
     }
 
