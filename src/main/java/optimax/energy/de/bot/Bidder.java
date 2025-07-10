@@ -1,31 +1,32 @@
 package optimax.energy.de.bot;
 
 
+/**
+ * Represents a bidder for the action.
+ */
 public interface Bidder {
     /**
-     * Инициализирует участника с объёмом продукции и доступным бюджетом.
+     * Initializes the bidder with the production quantity and the allowed cash limit.
      *
-     * @param quantity объём продукции
-     * @param cash     доступный денежный лимит
+     * @param quantity
+     * the quantity
+     * @param cash
+     * the cash limit
      */
-     void init(int quantity, int cash);
-
+    void init(int quantity, int cash);
     /**
-     * Возвращает следующую ставку на товар (может быть ноль).
+     * Retrieves the next bid for the product, which may be zero.
      *
-     * @return следующая ставка
+     * @return the next bid
      */
     int placeBid();
-
     /**
-     * Показывает ставки двух участников.
+     * Shows the bids of the two bidders.
      *
-     * @param own   ставка этого участника
-     * @param other ставка другого участника
+     * @param own
+     * the bid of this bidder
+     * @param other
+     * the bid of the other bidder
      */
     void bids(int own, int other);
-
-
-    //------------------------------------------------------------------------------
-
 }
